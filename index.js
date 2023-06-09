@@ -27,9 +27,18 @@ async function run() {
     await client.connect();
 
     const classesCollection =client.db("summerCameDb").collection("classes")
+    const cartsCollection =client.db("summerCameDb").collection("carts")
 
     app.get('/classes', async(req, res)=>{
       const result =await classesCollection.find().toArray()
+      res.send(result)
+    })
+
+    // cart collection
+    app.post('/carts', async(req, res)=> {
+      const item =req.body;
+      console.log(item)
+      const result =await cartsCollection.insertOne(item)
       res.send(result)
     })
 
