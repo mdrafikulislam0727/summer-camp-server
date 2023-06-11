@@ -55,9 +55,9 @@ async function run() {
     app.post('/jwt', (req, res) => {
       const user = req.body;
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
-      res.send({token})
+      res.send({ token })
     })
-    
+
 
     // user related apis
     app.get('/users', async (req, res) => {
@@ -76,7 +76,22 @@ async function run() {
       const result = await usersCollection.insertOne(user)
       res.send(result);
     })
-// admin role set
+
+    // admin role set
+
+    app.get('/users/admin/:email', verifyJWT, async (req, res) => {
+      const email = req.params.email;
+
+      if (req.decoded.email !== email) {
+        res.send({ admin: false })
+      }
+
+      const query = { email: email }
+      const user = await usersCollection.findOne(query)
+      const result = { admin: user?.role === 'admin' }
+      res.send(result)
+    })
+
     app.patch('/users/admin/:id', async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) }
@@ -85,10 +100,12 @@ async function run() {
           role: "admin"
         },
       };
-      const result =await usersCollection.updateOne(filter, updateDoc)
+      const result = await usersCollection.updateOne(filter, updateDoc)
       res.send(result)
     })
+
     // instructor role set
+    
     app.patch('/users/instructor/:id', async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) }
@@ -97,7 +114,7 @@ async function run() {
           role: "instructor"
         },
       };
-      const result =await usersCollection.updateOne(filter, updateDoc)
+      const result = await usersCollection.updateOne(filter, updateDoc)
       res.send(result)
     })
 
@@ -108,7 +125,7 @@ async function run() {
     })
 
     // cart collection
-    app.get('/carts',verifyJWT, async (req, res) => {
+    app.get('/carts', verifyJWT, async (req, res) => {
       const email = req.query.email;
       console.log(email)
       if (!email) {
@@ -116,8 +133,8 @@ async function run() {
       }
 
       const decodedEmail = req.decoded.email;
-      if(email !==decodedEmail){
-        return res.send(403).send({ error: true, message: 'forbidden access'})
+      if (email !== decodedEmail) {
+        return res.send(403).send({ error: true, message: 'forbidden access' })
       }
 
       const query = { email: email };
