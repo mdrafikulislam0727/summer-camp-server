@@ -141,6 +141,13 @@ async function run() {
       const result =await addclassesCollection.find().toArray()
       res.send(result)
     })
+
+    app.get('/addclasses/instructor/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await addclassesCollection.find(query).toArray();
+      res.send(result)
+    })
      
     app.patch('/addclasses/approved/:id', async(req, res)=>{
       const id = req.params.id;
@@ -154,14 +161,7 @@ async function run() {
       res.send(result)
     })
 
-   app.get('/addclasses/approved/:id', async(req, res)=>{
-    
-     const result = await addclassesCollection.find().toArray()
-     res.send(result)
 
-   })
-    
-    
 
     // cart collection
     app.get('/carts', verifyJWT, async (req, res) => {
