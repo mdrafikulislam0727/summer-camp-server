@@ -11,13 +11,11 @@ app.use(express.json())
 
 const verifyJWT = (req, res, next) => {
   const authorization = req.headers.authorization;
-  console.log(authorization)
   if (!authorization) {
     return res.status(401).send({ error: true, message: 'unauthorized access' });
   }
   // bearer token
   const token = authorization.split(' ')[1];
-  console.log(token)
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err) {
@@ -50,6 +48,7 @@ async function run() {
 
     const usersCollection = client.db("summerCameDb").collection("users")
     const classesCollection = client.db("summerCameDb").collection("classes")
+    const addclassesCollection = client.db("summerCameDb").collection("addclasses")
     const cartsCollection = client.db("summerCameDb").collection("carts")
 
     app.post('/jwt', (req, res) => {
@@ -60,7 +59,7 @@ async function run() {
 
 
     // user related apis
-    app.get('/users', async (req, res) => {
+    app.get('/users',verifyJWT, async (req, res) => {
       const result = await usersCollection.find().toArray();
       res.send(result)
     })
@@ -105,7 +104,20 @@ async function run() {
     })
 
     // instructor role set
-    
+
+    app.get('/users/instructor/:email', verifyJWT, async (req, res) => {
+      const email = req.params.email;
+
+      if (req.decoded.email !== email) {
+        res.send({ instructor: false })
+      }
+
+      const query = { email: email }
+      const user = await usersCollection.findOne(query)
+      const result = { instructor: user?.role === 'instructor' }
+      res.send(result)
+    })
+
     app.patch('/users/instructor/:id', async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) }
@@ -121,6 +133,17 @@ async function run() {
     // classes related apis
     app.get('/classes', async (req, res) => {
       const result = await classesCollection.find().toArray()
+      res.send(result)
+    })
+// addclasses------------------
+    app.post('/addclasses', async(req, res)=>{
+      const newClass =req.body;
+      const result = await addclassesCollection.insertOne(newClass)
+      res.send(result)
+    })
+
+    app.get('/addclasses', async(req, res)=>{
+      const result =await addclassesCollection.find().toArray()
       res.send(result)
     })
 
