@@ -47,7 +47,6 @@ async function run() {
     await client.connect();
 
     const usersCollection = client.db("summerCameDb").collection("users")
-    const classesCollection = client.db("summerCameDb").collection("classes")
     const addclassesCollection = client.db("summerCameDb").collection("addclasses")
     const cartsCollection = client.db("summerCameDb").collection("carts")
 
@@ -130,11 +129,7 @@ async function run() {
       res.send(result)
     })
 
-    // classes related apis
-    app.get('/classes', async (req, res) => {
-      const result = await classesCollection.find().toArray()
-      res.send(result)
-    })
+
 // addclasses------------------
     app.post('/addclasses', async(req, res)=>{
       const newClass =req.body;
@@ -146,6 +141,8 @@ async function run() {
       const result =await addclassesCollection.find().toArray()
       res.send(result)
     })
+
+    
 
     // cart collection
     app.get('/carts', verifyJWT, async (req, res) => {
