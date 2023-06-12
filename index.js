@@ -58,7 +58,7 @@ async function run() {
 
 
     // user related apis
-    app.get('/users',verifyJWT, async (req, res) => {
+    app.get('/users', async (req, res) => {
       const result = await usersCollection.find().toArray();
       res.send(result)
     })
@@ -141,7 +141,26 @@ async function run() {
       const result =await addclassesCollection.find().toArray()
       res.send(result)
     })
+     
+    app.patch('/addclasses/approved/:id', async(req, res)=>{
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const updateDoc = {
+        $set: {
+          status: "approved"
+        },
+      };
+      const result = await addclassesCollection.updateOne(filter, updateDoc)
+      res.send(result)
+    })
 
+   app.get('/addclasses/approved/:id', async(req, res)=>{
+    
+     const result = await addclassesCollection.find().toArray()
+     res.send(result)
+
+   })
+    
     
 
     // cart collection
