@@ -3,6 +3,7 @@ const app = express();
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 require('dotenv').config()
+const stripe = require('stripe')(process.env.PAYMENT_SECRET_KEY)
 const port = process.env.PORT || 5000;
 
 // middleware
@@ -74,6 +75,20 @@ async function run() {
       const result = await usersCollection.insertOne(user)
       res.send(result);
     })
+    // create payment
+    app.post('/create-payment-intent', verifyJWT, async (req, res) => {
+      const { price } = req.body;
+      const amount = price * 100;
+      console.log("price",price,amount)
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: 'usd',
+        payment_method_types: ['card']
+      });
+      res.send({
+        clientSecret: paymentIntent.client_secret
+      })
+    })
 
     // admin role set
 
@@ -130,15 +145,15 @@ async function run() {
     })
 
 
-// addclasses------------------
-    app.post('/addclasses', async(req, res)=>{
-      const newClass =req.body;
+    // addclasses------------------
+    app.post('/addclasses', async (req, res) => {
+      const newClass = req.body;
       const result = await addclassesCollection.insertOne(newClass)
       res.send(result)
     })
 
-    app.get('/addclasses', async(req, res)=>{
-      const result =await addclassesCollection.find().toArray()
+    app.get('/addclasses', async (req, res) => {
+      const result = await addclassesCollection.find().toArray()
       res.send(result)
     })
 
@@ -148,8 +163,8 @@ async function run() {
       const result = await addclassesCollection.find(query).toArray();
       res.send(result)
     })
-     
-    app.patch('/addclasses/approved/:id', async(req, res)=>{
+
+    app.patch('/addclasses/approved/:id', async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) }
       const updateDoc = {
