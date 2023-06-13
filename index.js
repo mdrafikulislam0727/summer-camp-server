@@ -78,7 +78,7 @@ async function run() {
     // create payment
     app.post('/create-payment-intent', verifyJWT, async (req, res) => {
       const { price } = req.body;
-      const amount = price * 100;
+      const amount = parseFloat(price * 100);
       console.log("price",price,amount)
       const paymentIntent = await stripe.paymentIntents.create({
         amount: amount,
@@ -195,6 +195,14 @@ async function run() {
       const result = await cartsCollection.find(query).toArray();
       res.send(result)
     });
+
+    app.get('/carts/:id', async(req, res)=>{
+      const id =req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await cartsCollection.findOne(query);
+      res.send(result)
+
+    })
 
     app.post('/carts', async (req, res) => {
       const item = req.body;
