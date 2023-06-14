@@ -1,8 +1,9 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const jwt = require('jsonwebtoken');
 require('dotenv').config()
+const jwt = require('jsonwebtoken');
+
 const stripe = require('stripe')(process.env.PAYMENT_SECRET_KEY)
 const port = process.env.PORT || 5000;
 
@@ -111,7 +112,7 @@ async function run() {
       const email = req.params.email;
 
       if (req.decoded.email !== email) {
-        res.send({ admin: false })
+       return res.send({ admin: false })
       }
 
       const query = { email: email }
@@ -138,7 +139,7 @@ async function run() {
       const email = req.params.email;
 
       if (req.decoded.email !== email) {
-        res.send({ instructor: false })
+       return res.send({ instructor: false })
       }
 
       const query = { email: email }
@@ -198,7 +199,7 @@ async function run() {
       const email = req.query.email;
       console.log(email)
       if (!email) {
-        res.send([])
+       return res.send([])
       }
 
       const decodedEmail = req.decoded.email;
