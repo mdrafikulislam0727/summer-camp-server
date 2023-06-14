@@ -98,6 +98,13 @@ async function run() {
       res.send(result)
     })
 
+    app.get('/payments/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await paymentCollection.findOne(query)
+      res.send(result)
+    })
+
     // admin role set
 
     app.get('/users/admin/:email', verifyJWT, async (req, res) => {
