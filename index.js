@@ -50,6 +50,7 @@ async function run() {
     const usersCollection = client.db("summerCameDb").collection("users")
     const addclassesCollection = client.db("summerCameDb").collection("addclasses")
     const cartsCollection = client.db("summerCameDb").collection("carts")
+    const paymentCollection = client.db("summerCameDb").collection("payments")
 
     app.post('/jwt', (req, res) => {
       const user = req.body;
@@ -88,6 +89,13 @@ async function run() {
       res.send({
         clientSecret: paymentIntent.client_secret
       })
+    })
+
+    // payment related api
+    app.post('/payments',verifyJWT, async(req, res) =>{
+      const payment =req.body;
+      const result =await paymentCollection.insertOne(payment)
+      res.send(result)
     })
 
     // admin role set
